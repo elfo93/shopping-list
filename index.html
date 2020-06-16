@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>my wish list</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="app" class="container">
+      <h1 class="center margin-bottom">lista de deseos :) </h1>
+      <div class="row">
+        <div class="col m12 l4 margin-right">
+          
+          <h5 class="center margin-bottom">guarda tu deseo:</h5>
+
+          <div class="input-field col s12">
+            <label for="nombre">nombre</label>
+            <input v-model = "currentProduct.name" type="text">
+          </div>
+
+          <div class="input-field col s12">
+            <label for="description">descripción</label>
+            <input v-model = "currentProduct.description" type="text">
+          </div>
+
+          <div class="input-field col s12">
+            <input v-model.number = "currentProduct.quantity" type="number">
+            <label for="quantity">cantidad</label>
+          </div>
+
+         <div class="input-field col s12">
+            <input v-model.number = "currentProduct.price" type="number" min="0">
+            <label for="precio">precio</label>
+          </div>
+
+         <div class= "input-field col s12">
+            <input type= "url" v-model = "currentProduct.urlImg" class="img">
+            <label>url</label>
+         </div>
+     
+          <div class="center"><button @click="saveProduct" class="waves-effect btn mybtn">guardar</button></div>
+        </div>
+
+      
+        <!-- TABLA DE PRODUCTOS AÑADIDOS A LA LISTA -->
+
+        <table class="col m12 l6">
+          <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+                <th class="center">Precio</th>
+                <th class="center">Imagen</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr v-for="product in products">
+              <td>{{product.name}}</td>
+              <td>{{product.description}}</td>
+              <td class="center">{{product.quantity}}</td>
+              <td class="center">{{product.price}}</td>
+              <td class="center"><img style="max-width: 7rem" :src="product.urlImg" alt="link-producto"></img></td>
+              <td>
+                <div><button class="btn aqua" @click="editProduct(product)">E</button></div>
+                <div><button class="btn red lighten-2" @click="removeProduct(product)">X</button></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="col m12 l6 mytotal red lighten-2"><p>Total : {{total}}</p></div>
+      </div>
+  </div>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script src="https://unpkg.com/vue"></script>
+  <script>
+    const app = new Vue({
+      el:"#app",
+      data: {
+        isNew:true,
+        currentProduct:{
+          id: null,
+          name:"",
+          description: "",
+          quantity:"",
+          price:"",
+          urlImg: "",
+        }, 
+        products:[{
+            id: 0,
+            name:"vestido unicornio",
+            description: "full de brilli-brilli",
+            quantity:"1",
+            price: 20,
+            urlImg:"https://images-na.ssl-images-amazon.com/images/I/61T1q03NBmL._AC_UX385_.jpg",
+        },
+        {
+            id: 1,
+            name:"huevo de dragón",
+            description: "on fire all the time",
+            quantity:"1",
+            price: 10,
+            urlImg:"https://www.encantoos.com/content/images/thumbs/0002634_huevo-dragon-viserion-figura-juego-de-tronos_600.jpeg",
+        }],
+      },
+
+      computed:{
+        total(){
+          let productsPrices = this.products.map((product) =>  product.price)
+          let total = productsPrices.reduce((accumulator, current) => accumulator + current)
+          return total 
+        },
+      },
+
+      methods:{
+
+        saveProduct(){
+          if (this.isNew === true){
+            this.currentProduct.id = this.products.length
+            this.currentProductCopy = {...this.currentProduct}
+            this.products.push(this.currentProductCopy)
+            this.clearCurrentProduct()
+          }
+          else {
+            this.currentProduct = {...this.currentProduct}
+            this.clearCurrentProduct()
+            this.isNew=true
+          }
+        },
+        
+        editProduct(product){
+          this.isNew = false
+          this.currentProduct = product
+        },
+        
+        removeProduct(product){
+          let index = this.products.findIndex((item) => item.id === product.id )
+          this.products.splice(index, 1)
+        },
+
+        clearCurrentProduct(){
+          this.currentProduct.id = ""
+          this.currentProduct.name = ""
+          this.currentProduct.description = ""
+          this.currentProduct.quantity = ""
+          this.currentProduct.price = ""
+          this.currentProduct.urlImg = ""
+        },
+
+        keepInLocalStorage(currentProduct){
+          localStorage.setItem(this.currentProduct.name, JSON.stringify(this.currentProduct)) 
+          console.log(localStorage)
+        },
+
+        showfromLocalStorage(currentProduct){
+          keepInLocalStorage(currentProduct)
+          let productsInLocalStorage = localStorage.getItem(this.currentProduct.name, JSON.parse(this.currentProduct))
+          return productsInLocalStorage
+        }
+      }
+    })
+  </script>
+</body>
+</html>
